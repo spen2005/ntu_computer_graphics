@@ -39,22 +39,25 @@
     attribute vec3 aFrontColor;
     attribute vec3 aVertexNormal;
 
-    //modify front color
+
 
     uniform mat4 uMVMatrix;
     uniform mat4 uPMatrix;
-    
-    // Ambient light coef.
+
     uniform float Ka;
-    // light1 location (x,y,z)
+
     uniform vec3 lightLoc;
 
-	varying vec4 fragcolor;
+    varying vec4 fragcolor;
+	varying vec3 color;
+
+    //scale
+    uniform float scale ;
 
     void main(void) {
         vec3 lightColor = vec3(1.0, 1.0, 1.0); // light color
 
-        vec3 aFrontColor = vec3(0.83, 0.68, 0.215);//modify front color , golden color
+        vec3 aFrontColor = aFrontColor ;
 
         // Transform VertexPosition and VertexNormal to world coordinate system
         vec3 mvVertex = (uMVMatrix * vec4(aVertexPosition, 1.0)).xyz;
@@ -95,16 +98,46 @@
     var mvMatrix = mat4.create();
     var pMatrix  = mat4.create();
 
-    var teapotVertexPositionBuffer;
-    var teapotVertexNormalBuffer;
-    var teapotVertexFrontColorBuffer;
-
+    //VertexPositionBuffer array
+    const VertexPositionBuffer = new Array(20);
+    //VertexNormalBuffer array
+    const VertexNormalBuffer = new Array(20);
+    //VertexFrontColorBuffer array
+    const VertexFrontColorBuffer = new Array(20);
+    //angle array
+    const angle = new Array(20);
+    //scale array
+    const obj_scale = [];
+    obj_scale.push(50.0);
+    obj_scale.push(100.0);
+    obj_scale.push(20.0);
+    //translate array
+    const obj_translate = []
+    obj_translate.push(vec3.create([0,5,-7.5]));
+    obj_translate.push(vec3.create([-20,0,-10]));
+    obj_translate.push(vec3.create([30,0,-5]));
+    //rotate array
+    const obj_rotate = []
+    obj_rotate.push(vec3.create([90,0,0]));
+    obj_rotate.push(vec3.create([90,180,180]));
+    obj_rotate.push(vec3.create([0,0,0]));
+    //obj_angle array
+    const obj_angle = []
+    obj_angle.push(180);
+    obj_angle.push(0);
+    obj_angle.push(0);
+    //obj_color array
+    const obj_color = [];
+    obj_color.push(vec3.create([0.1, 0.5, 0.9]));
+    obj_color.push(vec3.create([0.7, 0.3, 0.1]));
     var teapotAngle = 180;
+    
+    
+    
     var lastTime    = 0;
-
     var ka = 0.1;
     var light_locations = new Float32Array([30., 20., -25.]);
-
+    var num_obj = 0;
 
     //*************************************************
     // Initialization functions
@@ -182,10 +215,10 @@
         gl.enableVertexAttribArray(shaderProgram.vertexFrontColorAttribute);
         shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
         gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-
-        gl.uniform1f(gl.getUniformLocation(shaderProgram, "Ka"), ka);
+        
+        gl.uniform1f(gl.getUniformLocation(shaderProgram, "Ka"), ka); // 
         gl.uniform3fv(gl.getUniformLocation(shaderProgram, "lightLoc"), light_locations);
-
+        gl.uniform3fv(gl.getUniformLocation(shaderProgram, "color"), obj_color[0]);
         shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
     }
@@ -199,110 +232,96 @@
         return degrees * Math.PI / 180;
     }
 
-    function handleLoadedTeapot(teapotData) {
-        teapotVertexPositionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexPositionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(teapotData.vertexPositions), gl.STATIC_DRAW);
-        teapotVertexPositionBuffer.itemSize = 3;
-        teapotVertexPositionBuffer.numItems = teapotData.vertexPositions.length / 3;
+    function handle_loaded_object(Data,i){
+        VertexPositionBuffer[i] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexPositionBuffer[i]);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Data.vertexPositions), gl.STATIC_DRAW);
+        VertexPositionBuffer[i].itemSize = 3;
+        VertexPositionBuffer[i].numItems = Data.vertexPositions.length / 3;
 
-        teapotVertexNormalBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexNormalBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(teapotData.vertexNormals), gl.STATIC_DRAW);
-        teapotVertexNormalBuffer.itemSize = 3;
-        teapotVertexNormalBuffer.numItems = teapotData.vertexNormals.length / 3;
+        VertexNormalBuffer[i] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexNormalBuffer[i]);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Data.vertexNormals), gl.STATIC_DRAW);
+        VertexNormalBuffer[i].itemSize = 3;
+        VertexNormalBuffer[i].numItems = Data.vertexNormals.length / 3;
 
-        teapotVertexFrontColorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexFrontColorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(teapotData.vertexFrontcolors), gl.STATIC_DRAW);
-        teapotVertexFrontColorBuffer.itemSize = 3;
-        teapotVertexFrontColorBuffer.numItems = teapotData.vertexFrontcolors.length / 3;
+        VertexFrontColorBuffer[i] = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexFrontColorBuffer[i]);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Data.vertexFrontcolors), gl.STATIC_DRAW);
+        VertexFrontColorBuffer[i].itemSize = 3;
+        VertexFrontColorBuffer[i].numItems = Data.vertexFrontcolors.length / 3;
     }
 
-    function loadTeapot() {
+    function load_obj(filename, i) {
+        alert("load_obj: " + filename + " " + i + ")");
         var request = new XMLHttpRequest();
-        request.open("GET", "./model/Teapot.json");
+        request.open("GET", "./model/" + filename);
         request.onreadystatechange = function () {
             if (request.readyState == 4) {
-                handleLoadedTeapot(JSON.parse(request.responseText));
+                handle_loaded_object(JSON.parse(request.responseText), i);
             }
         }
         request.send();
+        num_obj++;
     }
 
-
-    //*************************************************
-    // Rendering functions
-    //*************************************************
-    /*
-        TODO HERE:
-        add two or more objects showing on the canvas
-        (it needs at least three objects showing at the same time)
-    */
-    function drawScene() {
-        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-        gl.clearColor(ka, ka, ka, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        if (teapotVertexPositionBuffer   == null || 
-            teapotVertexNormalBuffer     == null || 
-            teapotVertexFrontColorBuffer == null) {
-            
+    function draw_objects(i){
+        if (VertexPositionBuffer[i]   == null || VertexNormalBuffer[i] == null || VertexFrontColorBuffer[i] == null) {     
             return;
         }
-
         // Setup Projection Matrix
-        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+        mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 300.0, pMatrix);
 
         // Setup Model-View Matrix
         mat4.identity(mvMatrix);
-        mat4.translate(mvMatrix, [0,0,0]);
+        mat4.translate(mvMatrix, obj_translate[i]);
         mat4.translate(mvMatrix, update_trans());
         
-        var rotateVec_init = [0,0,0];
+        var rotateVec_init = obj_rotate[i];
         mat4.rotate(mvMatrix, degToRad(rotateVec_init[0]), [1, 0, 0]);
         mat4.rotate(mvMatrix, degToRad(rotateVec_init[1]), [0, 1, 0]);
         mat4.rotate(mvMatrix, degToRad(rotateVec_init[2]), [0, 0, 1]);
         
         var rotateVec = update_rotate();
         mat4.rotate(mvMatrix, degToRad(rotateVec[0]), [1, 0, 0]);
-        mat4.rotate(mvMatrix, degToRad(rotateVec[1] + teapotAngle), [0, 1, 0]);
+        mat4.rotate(mvMatrix, degToRad(rotateVec[1] + obj_angle[i]), [0, 1, 0]);
         mat4.rotate(mvMatrix, degToRad(rotateVec[2]), [0, 0, 1]);
 
+        //scale
+        mat4.scale(mvMatrix, [obj_scale[i], obj_scale[i], obj_scale[i]]);
         setMatrixUniforms();
 
         // Setup teapot position data
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexPositionBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 
-                               teapotVertexPositionBuffer.itemSize, 
-                               gl.FLOAT, 
-                               false, 
-                               0, 
-                               0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexPositionBuffer[i]);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, VertexPositionBuffer[i].itemSize, gl.FLOAT, false,  0, 0);
 
-        // Setup teapot front color data
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexFrontColorBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexFrontColorAttribute, 
-                               teapotVertexFrontColorBuffer.itemSize, 
-                               gl.FLOAT, 
-                               false, 
-                               0, 
-                               0);
+        // Setup front color data
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexFrontColorBuffer[i]);
+        gl.vertexAttribPointer(shaderProgram.vertexFrontColorAttribute,VertexFrontColorBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
         
-        // Setup teapot normal data
-        gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 
-                               teapotVertexNormalBuffer.itemSize, 
-                               gl.FLOAT, 
-                               false, 
-                               0, 
-                               0);
+        // Setup normal data
+        gl.bindBuffer(gl.ARRAY_BUFFER, VertexNormalBuffer[i]);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, VertexNormalBuffer[i].itemSize, gl.FLOAT, false, 0, 0);
 
         // Setup ambient light and light position
         gl.uniform1f(gl.getUniformLocation(shaderProgram, "Ka"), ka);
         gl.uniform3fv(gl.getUniformLocation(shaderProgram, "lightLoc"), light_locations);
 
-        gl.drawArrays(gl.TRIANGLES, 0, teapotVertexPositionBuffer.numItems);
+        // Setup color
+        gl.uniform3fv(gl.getUniformLocation(shaderProgram, "color"), obj_color[0]);
+
+        gl.drawArrays(gl.TRIANGLES, 0, VertexPositionBuffer[i].numItems);
+    }
+       
+
+    function drawScene() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clearColor(ka, ka, ka, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //iterate all objects
+        draw_objects(0);
+        draw_objects(1);
+        
     }
 
     function animate() {
@@ -325,7 +344,13 @@
         var canvas = document.getElementById("ICG-canvas");
         initGL(canvas);
         initShaders();
-        loadTeapot();
+        //load_obj("Teapot.json", 0);
+        //load_obj("Csie.json", 1);
+        load_obj("Tomcat.json", 0);
+        load_obj("Csie.json", 1);
+
+        //loadTeapot();
+        //loadCSIEbuilding();
 
         gl.clearColor(ka, ka, ka, 1.0);
         gl.enable(gl.DEPTH_TEST);
