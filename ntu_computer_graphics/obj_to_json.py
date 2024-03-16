@@ -29,8 +29,8 @@ def parse_obj(filename):
     }
 
 def main():
-    obj_filename = 'ball.obj'
-    json_filename = 'ball.json'
+    obj_filename = 'pinkball.obj'
+    json_filename = 'pinkball.json'
 
     data = parse_obj(obj_filename)
 
