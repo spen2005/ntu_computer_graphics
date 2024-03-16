@@ -108,28 +108,45 @@
     const angle = new Array(20);
     //scale array
     const obj_scale = [];
-    obj_scale.push(50.0);
-    obj_scale.push(100.0);
-    obj_scale.push(20.0);
+    obj_scale.push(50.0); //tomcat
+    obj_scale.push(100.0); //csie
+    obj_scale.push(20.0); //kangaroo
+    obj_scale.push(1.0); //teapot
+    obj_scale.push(30.0); //car
+    obj_scale.push(0.5); //church
     //translate array
     const obj_translate = []
-    obj_translate.push(vec3.create([0,5,-7.5]));
-    obj_translate.push(vec3.create([-20,0,-10]));
-    obj_translate.push(vec3.create([30,0,-5]));
+    obj_translate.push(vec3.create([0,5,-7.5])); //tomcat
+    obj_translate.push(vec3.create([-20,0,-40])); //csie
+    obj_translate.push(vec3.create([10,0,-10])); //kangaroo
+    obj_translate.push(vec3.create([-20,0,-10])); //teapot
+    obj_translate.push(vec3.create([35,0,-5])); //car
+    obj_translate.push(vec3.create([0,0,-10])); //church
     //rotate array
     const obj_rotate = []
-    obj_rotate.push(vec3.create([90,0,0]));
-    obj_rotate.push(vec3.create([90,180,180]));
-    obj_rotate.push(vec3.create([0,0,0]));
+    obj_rotate.push(vec3.create([90,0,0])); //tomcat
+    obj_rotate.push(vec3.create([90,180,180])); //csie
+    obj_rotate.push(vec3.create([0,0,0])); //kangaroo
+    obj_rotate.push(vec3.create([0,0,0])); //teapot
+    obj_rotate.push(vec3.create([-90,0,90])); //car
+    obj_rotate.push(vec3.create([0,0,0])); //church
     //obj_angle array
     const obj_angle = []
-    obj_angle.push(180);
-    obj_angle.push(0);
-    obj_angle.push(0);
+    obj_angle.push(180); //tomcat
+    obj_angle.push(0); //csie
+    obj_angle.push(0); //kangaroo
+    obj_angle.push(0); //teapot
+    obj_angle.push(0); //car
+    obj_angle.push(0); //church
     //obj_color array
     const obj_color = [];
-    obj_color.push(vec3.create([0.1, 0.5, 0.9]));
-    obj_color.push(vec3.create([0.7, 0.3, 0.1]));
+    obj_color.push(vec3.create([0.1, 0.5, 0.9])); //tomcat
+    obj_color.push(vec3.create([0.7, 0.3, 0.1])); //csie
+    obj_color.push(vec3.create([0.9, 0.1, 0.5])); //kangaroo
+    obj_color.push(vec3.create([0.5, 0.9, 0.1])); //teapot
+    obj_color.push(vec3.create([0.3, 0.7, 0.1])); //car
+    obj_color.push(vec3.create([0.1, 0.3, 0.7])); //church
+
     var teapotAngle = 180;
     
     
@@ -321,7 +338,10 @@
         //iterate all objects
         draw_objects(0);
         draw_objects(1);
-        
+        draw_objects(2);
+        draw_objects(3);
+        draw_objects(4);
+        draw_objects(5);
     }
 
     function animate() {
@@ -348,7 +368,10 @@
         //load_obj("Csie.json", 1);
         load_obj("Tomcat.json", 0);
         load_obj("Csie.json", 1);
-
+        load_obj("Kangaroo.json", 2);
+        load_obj("Teapot.json", 3);
+        load_obj("Car_road.json", 4);
+        load_obj("Church_s.json", 5);
         //loadTeapot();
         //loadCSIEbuilding();
 
